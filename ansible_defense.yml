@@ -1,0 +1,30 @@
+---
+- name: Update servers
+  vars: 
+    p: "super_secret"
+  hosts: servers
+  tasks:
+  - name: Update password
+    ansible.builtin.user:
+      name: root
+      password: "{{ p | password_hash('sha512') }}"
+      state: present
+  - name: Place ssh key
+    authorized_key:
+      user: "root"
+      key: "{{ lookup('file', './keys/ansible.pub') }}"
+      state: present
+  - name: Change ssh_config
+    lineinfile:
+      path: "/etc/ssh/sshd_config"
+      regex: "^(#)?{{item.key}}"
+      line: "{{item.key}} {{item.value}}"
+      state: present
+    loop:
+      - { key: "PermitRootLogin", value: "yes" }
+      - { key: "AuthenticationMethods", value: "publickey" }
+      - { key: "PasswordAuthentication", value: "no" }
+      - { key: "PubkeyAuthentication", value: "yes" }
+      - { key: "PermitEmptyPasswords", value: "no" }
+    notify:
+      - restart sshd
