@@ -1,7 +1,7 @@
 ---
 - name: Update servers
   vars: 
-    p: "super_secret"
+    p: "{{ lookup('ansible.builtin.file', './keys/pass.txt') }}"
   hosts: servers
   tasks:
   - name: Update password
