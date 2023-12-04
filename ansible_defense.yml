@@ -28,3 +28,10 @@
       - { key: "PermitEmptyPasswords", value: "no" }
     notify:
       - restart sshd
+- name: Run custom shell commands
+  hosts: servers
+  tasks:
+  - script: shell_commands.sh
+    register: results
+  - debug:
+      var: results.stdout
